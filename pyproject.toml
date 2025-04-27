@@ -1,0 +1,20 @@
+[project]
+name = "i-ink"
+version = "0.1.0"
+description = "E-ink display with WKD train times and weather"
+authors = [{name = "James"}]
+requires-python = "==3.13.3"
+
+dependencies = [
+    "requests==2.31.0",
+    "lxml==5.1.0",
+    "Pillow==10.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
