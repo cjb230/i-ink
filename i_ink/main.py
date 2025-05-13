@@ -1,23 +1,24 @@
 from .trains import get_next_wkd_trains, filter_trains_for_display
-from .render import render_train_info_image
+from .render import render_all
 from .weather import get_short_term_forecast
+
 
 def collect_all_data():
     raw_trains = get_next_wkd_trains()
     trains_to_show = filter_trains_for_display(raw_trains)
 
-    # Example coordinates (Warsaw); these should be configurable
-    lat, lon = 52.2297, 21.0122
-    weather_forecast = get_short_term_forecast(lat, lon, hours=3)
-
+    raw_weather_forecast = get_short_term_forecast(hours=3)
+    # print(f"rwf = {raw_weather_forecast}")
     return {
         "trains": trains_to_show,
-        "weather": weather_forecast
+        "weather": raw_weather_forecast
     }
 
 def run_display_update():
     data = collect_all_data()
-    render_train_info_image(data["trains"])
+    print("Data collected.")
+    # print(data["weather"])
+    render_all(data["trains"], data["weather"])
 
 def run_debug_mode():
     data = collect_all_data()

@@ -3,7 +3,7 @@ from lxml import html
 import re
 from datetime import datetime, timedelta
 
-def get_next_wkd_trains():
+def get_next_wkd_trains() -> dict[str, list]:
     """
     Scrapes the WKD website for the next scheduled trains at Malichy station.
     Returns a sorted list of (time, train_number) tuples.
@@ -12,14 +12,18 @@ def get_next_wkd_trains():
     headers = {"User-Agent": "Mozilla/5.0"}
 
     try:
+        print("Fetching WKD data...")
         response = requests.get(url, headers=headers, timeout=10)
         doc = html.fromstring(response.content)
+        print(f"Fetched {len(response.content)} chars")
 
-        element = doc.xpath('//*[@id="module-123"]/div[2]/div[2]/div[1]/div[3]/div[1]/ul/li[18]')
-        if not element:
+        to_warsaw_element = doc.xpath('//*[@id="module-123"]/div[2]/div[2]/div[1]/div[3]/div[1]/ul/li[18]')
+        to_podkowa_lesna_element = doc.xpath('//*[@id="module-123"]/div[2]/div[2]/div[1]/div[2]/div[2]/ul/li[18]')
+
+        if not to_warsaw_element and not to_podkowa_lesna_element:
             return []
 
-        chunks = element[0].text_content().split()
+        chunks = to_warsaw_element[0].text_content().split()
         results = []
         for chunk in chunks:
             match = re.search(r'(\d{4}).*?(\d{2}:\d{2})', chunk)
@@ -27,27 +31,48 @@ def get_next_wkd_trains():
                 train_no, time_str = match.groups()
                 time_obj = datetime.strptime(time_str, "%H:%M").time()
                 results.append((time_obj, train_no))
-
-        return sorted(results, key=lambda x: x[0])
-
+        to_warsaw_results = sorted(results, key=lambda x: x[0])
+        # print(to_warsaw_results)
+        chunks = to_podkowa_lesna_element[0].text_content().split()
+        results = []
+        for chunk in chunks:
+            match = re.search(r'(\d{4}).*?(\d{2}:\d{2})', chunk)
+            if match:
+                train_no, time_str = match.groups()
+                time_obj = datetime.strptime(time_str, "%H:%M").time()
+                results.append((time_obj, train_no))
+        to_podkowa_lesna_results = sorted(results, key=lambda x: x[0])
+        # print()
+        # print(to_podkowa_lesna_results)
+        # exit()
+        # print(to_warsaw_results)
+        # exit()
+        kk = {"warsaw": to_warsaw_results, "podkowa_lesna": to_podkowa_lesna_results}
+        #print(kk)
+        #exit()
+        return kk
     except Exception as e:
         print(f"Error fetching WKD data: {e}")
-        return []
+        print(match)
+        exit()
 
-def filter_trains_for_display(train_list, max_display=3, earliest_minutes_ahead=1):
+
+def filter_trains_for_display(train_dict, max_display=3, earliest_minutes_ahead=1):
     """
     Filters trains to include only those departing at least `earliest_minutes_ahead` in the future.
     Returns up to `max_display` upcoming departures.
     """
     now = datetime.now().time()
-    results = []
+    results = {"warsaw": [],  "podkowa_lesna": []}
 
-    for train_time, train_no in train_list:
-        if train_time > now:
-            delta = datetime.combine(datetime.today(), train_time) - datetime.combine(datetime.today(), now)
-            if delta >= timedelta(minutes=earliest_minutes_ahead):
-                results.append((train_time, train_no))
-            if len(results) == max_display:
-                break
+    #print(train_dict)
+    for train_direction, train_list in train_dict.items():
+        for train_time, train_no in train_list:
+            if train_time > now:
+                delta = datetime.combine(datetime.today(), train_time) - datetime.combine(datetime.today(), now)
+                if delta >= timedelta(minutes=earliest_minutes_ahead):
+                    results[train_direction].append((train_time, train_no))
+                if len(results) == max_display:
+                    break
 
     return results

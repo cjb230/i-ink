@@ -1,46 +1,45 @@
-import os
 import requests
-from datetime import datetime
+import zoneinfo 
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
 load_dotenv()
 
-OWM_API_KEY = os.getenv("OWM_API_KEY")
-BASE_URL = "https://api.openweathermap.org/data/3.0/onecall"
+BASE_URL = "http://192.168.1.129:8080/data"
 
 
-def fetch_hourly_forecast(lat, lon):
-    if not OWM_API_KEY:
-        raise RuntimeError("OpenWeatherMap API key not set in .env")
-
-    params = {
-        "lat": lat,
-        "lon": lon,
-        "appid": OWM_API_KEY
-    }
-
-    response = requests.get(BASE_URL, params=params, timeout=10)
+def fetch_forecast():
+    print(f"Fetching weather... ({BASE_URL})")
+    response = requests.get(BASE_URL, timeout=10)
+    print("Fetched.")
     response.raise_for_status()
     return response.json()
 
 
-def extract_short_term_forecast(data, hours=3):
+def extract_short_term_forecast(data, hours=6):
     results = []
     for hour in data.get("hourly", [])[:hours]:
-        timestamp = datetime.utcfromtimestamp(hour["dt"])
-        temp = round(hour["temp"])
-        clouds = hour.get("clouds", 0)
-        pop = int(hour.get("pop", 0) * 100)  # convert to %
-        results.append((timestamp, temp, clouds, pop))
+        hour_ts = datetime.fromtimestamp(hour["dt"], timezone.utc)
+
+        temp_c = round(hour["temp"] - 273.15)
+        feels_like_c = round(hour["feels_like"] - 273.15)
+        time_str = hour_ts.astimezone(zoneinfo.ZoneInfo("Europe/Warsaw")).strftime("%H:%M")
+        results.append({"time": time_str,
+                        "temperature": temp_c,
+                        "feels_like": feels_like_c})
     return results
 
 
 def format_forecast_entry(entry):
-    timestamp, temp, clouds, pop = entry
-    return f"{timestamp}: {temp}°C, Clouds: {clouds}%, Rain Probability: {pop}%"
+    # forecast_time, temp, clouds, pop = entry
+    return f"{entry["time"]}:\nTemp {entry["temperature"]}°C, Feels Like: {entry["feels_like"]}"
 
 
-def get_short_term_forecast(lat, lon, hours=3):
-    data = fetch_hourly_forecast(lat, lon)
-    short_term_forecast = extract_short_term_forecast(data, hours)
+def get_short_term_forecast(hours=6):
+    data = fetch_forecast()
+    # print(f"get_short_term_forecast.data = {data}")
+    sunset_time_unix, sunrise_time_unix = data["result"]["current"]["sunset"], data["result"]["current"]["sunrise"]
+    # sunset_str = 
+    short_term_forecast = extract_short_term_forecast(data["result"], hours=6)
+    return short_term_forecast
     return [format_forecast_entry(entry) for entry in short_term_forecast]
