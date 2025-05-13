@@ -72,7 +72,7 @@ def render_weather_image(weather_data, output_to_file=False, width=800, height=6
     print(weather_data)
     for hour in weather_data:
         font = ImageFont.truetype(font=font_path, size=30)
-        draw.text((x, y), f"{hour["time"]}: {hour["temperature"]}", font=font, fill="black")
+        draw.text((x, y), f"{hour['time']}: {hour['temperature']}", font=font, fill="black")
         y += 35
 
     if output_to_file:
