@@ -32,7 +32,7 @@ def extract_short_term_forecast(data, hours=6):
 
 def format_forecast_entry(entry):
     # forecast_time, temp, clouds, pop = entry
-    return f"{entry["time"]}:\nTemp {entry["temperature"]}°C, Feels Like: {entry["feels_like"]}"
+    return f"{entry['time']}:\nTemp {entry['temperature']}°C, Feels Like: {entry['feels_like']}"
 
 
 def get_short_term_forecast(hours=6):
