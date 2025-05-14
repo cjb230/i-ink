@@ -2,8 +2,10 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 # Get path to the directory where run.py is located
-base_dir = os.path.dirname(os.path.abspath(__file__))
-font_path = os.path.join(base_dir, "Times New Roman.ttf")
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(f"base dir = {base_dir}")
+font_path = os.path.join(base_dir, "times_new_roman.ttf")
+print(f"font path = {font_path}")
 #wkd_png = os.path.join(base_dir, "wkd.png")
 #wkd_overlay = Image.open(wkd_png).convert("RGBA")
 
@@ -19,10 +21,8 @@ def render_train_info_image(all_trains, output_to_file=False, width=800, height=
      #image.paste(wkd_overlay, (50, 50))
 
     # Load font
-    try:
-        font = ImageFont.truetype(font=font_path, size=35)
-    except IOError:
-        font = ImageFont.load_default()
+    font = ImageFont.truetype(font=font_path, size=35)
+    # font = ImageFont.load_default()
 
     draw.text((10, 0), "Next WKD Trains:", font=font, fill="black")
 
