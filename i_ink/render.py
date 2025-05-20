@@ -80,13 +80,13 @@ def render_weather_image(weather_data, output_to_file=False, width=800, height=6
     return image
 
 
-def render_all(trains_data, weather_data, output_path="final.png"):
+def render_all(trains_data, weather_data, output_path="final.png") -> Image:
     train_part = render_train_info_image(trains_data)
     weather_part = render_weather_image(weather_data)
     #new_img = Image.new("RGB", (max(img1.width, img2.width), img1.height + img2.height))
-    new_img = Image.new("RGB", (800, 600))
-    
-    new_img.paste(train_part, (0, 0))
-    new_img.paste(weather_part, (0, 150))
+    new_img = Image.new("RGB", (800, 480))
 
-    new_img.save(output_path)
+    new_img.paste(train_part, (0, 0))
+    new_img.paste(weather_part, (0, 120))
+    # new_img.save(output_path)
+    return new_img
