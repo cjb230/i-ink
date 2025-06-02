@@ -1,7 +1,7 @@
 import requests
 from lxml import html
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 def get_next_wkd_trains() -> dict[str, list]:
     """
@@ -42,14 +42,9 @@ def get_next_wkd_trains() -> dict[str, list]:
                 time_obj = datetime.strptime(time_str, "%H:%M").time()
                 results.append((time_obj, train_no))
         to_podkowa_lesna_results = sorted(results, key=lambda x: x[0])
-        # print()
-        # print(to_podkowa_lesna_results)
-        # exit()
-        # print(to_warsaw_results)
-        # exit()
-        kk = {"warsaw": to_warsaw_results, "podkowa_lesna": to_podkowa_lesna_results}
-        #print(kk)
-        #exit()
+        kk = {"warsaw": to_warsaw_results,
+              "podkowa_lesna": to_podkowa_lesna_results,
+              "timestamp": datetime.now(timezone.utc).isoformat()}
         return kk
     except Exception as e:
         print(f"Error fetching WKD data: {e}")
@@ -64,7 +59,8 @@ def filter_trains_for_display(train_dict, max_display=3, earliest_minutes_ahead=
     """
     now = datetime.now().time()
     results = {"warsaw": [],  "podkowa_lesna": []}
-
+    results["timestamp"] = train_dict["timestamp"]
+    del train_dict["timestamp"]
     #print(train_dict)
     for train_direction, train_list in train_dict.items():
         for train_time, train_no in train_list:
@@ -74,5 +70,4 @@ def filter_trains_for_display(train_dict, max_display=3, earliest_minutes_ahead=
                     results[train_direction].append((train_time, train_no))
                 if len(results) == max_display:
                     break
-
     return results

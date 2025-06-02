@@ -1,29 +1,35 @@
 import os
 import cairosvg
+from datetime import datetime
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
-
-# enum for size
-# ICON_SIZE: 
 
 
 # Get path to the directory where run.py is located
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print(f"base dir = {BASE_DIR}")
-FONT_PATH = os.path.join(BASE_DIR, "times_new_roman.ttf")
-print(f"font path = {FONT_PATH}")
+# FONT_PATH = os.path.join(BASE_DIR, "times_new_roman.ttf")
+FONT_PATH = os.path.join(BASE_DIR, "amazon_ember_display_light.ttf")
 ICON_IMAGE_BASE_PATH = os.path.join(BASE_DIR, "svg")
+LOCAL_TZ = datetime.now().astimezone().tzinfo
 
-#wkd_png = os.path.join(base_dir, "wkd.png")
-#wkd_overlay = Image.open(wkd_png).convert("RGBA")
+# print(f"base dir = {BASE_DIR}")
+# print(f"font path = {FONT_PATH}")
+# print(f"ICON_IMAGE_BASE_PATH = {ICON_IMAGE_BASE_PATH}")
+# print(f"local tz = {LOCAL_TZ}")
+
 try:
-    FONT = ImageFont.truetype(font=FONT_PATH, size=35)
-except IOError:
-    FONT = ImageFont.load_default()
+    LARGE_FONT = ImageFont.truetype(font=FONT_PATH, size=32)
+    MEDIUM_FONT = ImageFont.truetype(font=FONT_PATH, size=23)
+    TINY_FONT = ImageFont.truetype(font=FONT_PATH, size=12)    
+except IOError as ioe:
+    print(f"Could not load typeface!\n{ioe}")
+    LARGE_FONT = ImageFont.load_default()
+    MEDIUM_FONT = LARGE_FONT
+    TINY_FONT = LARGE_FONT
 
 NAME_MAP = {"warsaw": "Warsaw","podkowa_lesna": "Podkowa Leśna"}
 
-def render_train_info_image(all_trains, output_to_file=False, width=800, height=150, output_path="train_times.png"):
+def render_train_info_image(all_trains, output_to_file=False, width=480, height=150, output_path="train_times.png"):
     """
     Renders a white background image with train times in black text.
     Output is saved to the given path.
@@ -32,35 +38,29 @@ def render_train_info_image(all_trains, output_to_file=False, width=800, height=
     draw = ImageDraw.Draw(image)
      #image.paste(wkd_overlay, (50, 50))
 
-    draw.text((10, 0), "Next WKD Trains:", font=FONT, fill="black")
+    draw.text((10, 0), "Next WKD Trains To:", font=LARGE_FONT, fill="black")
 
     y = 35
-    x = 30
+    x = 10
     for direction, trains in all_trains.items():
-        draw.text((x, y), f"To {NAME_MAP[direction]}:", font=FONT, fill="black")
-        y += 35
+        draw.text((x, y), f"{NAME_MAP[direction]}:", font=MEDIUM_FONT, fill="black")
+        y += 30
         x += 30
         z = 0
         for time, train_no in trains:
-            font = ImageFont.truetype(font=FONT_PATH, size=23)
             z += 1
             line = f"{time.strftime('%H:%M')}"  # — ({train_no})"
-            draw.text((x, y), line, font=font, fill="black")
-            y += 25
+            draw.text((x, y), line, font=MEDIUM_FONT, fill="black")
+            y += 27
             if z > 2:
                 y = 30
                 break
-        x += 410
+        x += 240
 
     if output_to_file:
         image.save(output_path)
     return image
 
-
-
-def icon_image_path() -> str:
-    path = os.path.join(ICON_IMAGE_BASE_PATH, "01d_w.png")
-    return path
 
 
 def render_svg_to_pillow(svg_path: str, scale: float = 1.0) -> Image.Image:
@@ -72,78 +72,97 @@ def render_svg_to_pillow(svg_path: str, scale: float = 1.0) -> Image.Image:
     # Convert SVG to PNG bytes, scaling via DPI
     png_bytes = cairosvg.svg2png(bytestring=svg_data, scale=scale)
 
-    # Load PNG bytes into a Pillow image
-    # return Image.open(BytesIO(png_bytes)).convert("1")  # convert to 1-bit monochrome
     return Image.open(BytesIO(png_bytes)).convert("RGBA")
 
 
-"""
-{"dt": 1747936800, "temp": 284.94, "feels_like": 284.47, "pressure": 1006, "humidity": 88, "dew_point": 283.02, "uvi": 0, "clouds": 20, "visibility": 10000, "wind_speed": 2.52, "wind_deg": 267, "wind_gust": 4.93, "weather": [{"id": 501, "main": "Rain", "description": "moderate rain", "icon": "10d"}], "pop": 0.2, "rain": {"1h": 1.33}}
-{"dt": 1747940400, "temp": 285.24, "feels_like": 284.8, "pressure": 1006, "humidity": 88, "dew_point": 283.32, "uvi": 0, "clouds": 36, "visibility": 9637, "wind_speed": 1.43, "wind_deg": 258, "wind_gust": 3.23, "weather": [{"id": 500, "main": "Rain", "description": "light rain", "icon": "10n"}], "pop": 1, "rain": {"1h": 1}}
-{"dt": 1747944000, "temp": 285.31, "feels_like": 284.91, "pressure": 1006, "humidity": 89, "dew_point": 283.55, "uvi": 0, "clouds": 52, "visibility": 6104, "wind_speed": 1.99, "wind_deg": 271, "wind_gust": 5.13, "weather": [{"id": 500, "main": "Rain", "description": "light rain", "icon": "10n"}], "pop": 1, "rain": {"1h": 0.24}}
-"""
 def render_weather_hour(weather_data: dict, width: int=100, height: int=100, icon_size: int=2, output_path: str ="weather_hour.png", output_to_file: bool=False) -> Image:
     image = Image.new("RGB", (width, height), "white")
     draw = ImageDraw.Draw(image)
-    # hour = 
     icon_index: str = weather_data["weather"][0]["icon"]
     icon_file_name_1 = icon_index + ".svg"
-    # icon_file_name_2 = icon_index + "_w.png"
 
-    # print(f"icon index = {icon_index}")
-    temp: int = round(weather_data["temp"] - 273.15)
-    draw.text((10, 0), "06", font=FONT, fill="black")
+    temp_str: str = str(round(weather_data["temp"] - 273.15)) + '°C'
+    # hour_str = printable_hour(unix_time=weather_data["dt"])
+
     icon_path_1 = os.path.join(ICON_IMAGE_BASE_PATH, icon_file_name_1)
-    # icon_path_2 = os.path.join(ICON_IMAGE_BASE_PATH, icon_file_name_2)
     print(f"icon_path={icon_path_1}")
-    # icon_image_1 = Image.open(icon_path_1)
-    icon_image_1 = render_svg_to_pillow(icon_path_1, scale=0.5)
-    # icon_image_2 = Image.open(icon_path_2)
-    image.paste(icon_image_1, (0,0),icon_image_1)
-    draw.text((10, 0), str(temp), font=FONT, fill="black")
+    draw.text((35, 0), weather_data["hour_str"], font=MEDIUM_FONT, fill="black")
+    icon_image_1 = render_svg_to_pillow(icon_path_1, scale=0.08)
+    image.paste(icon_image_1, (28,26),icon_image_1)
+    print(f"temp = {temp_str}")
+    draw.text((19, 63), str(temp_str), font=LARGE_FONT, fill="black")
 
     if output_to_file:
         image.save(output_path)
     return image    
 
 
-def render_weather_image(weather_data, output_to_file=False, width=800, height=650, output_path="weather.png") -> Image:
+def render_weather_hours_image(weather_data, output_to_file=False, output_height=150, output_width=480, panel_height=100, panel_width=100, output_path="weather_hours.png") -> Image:
     """
     Renders a white background image with weather in black text.
     Output is saved to the given path.
     """
-    image = Image.new("RGB", (width, height), "white")
-    draw = ImageDraw.Draw(image)
-     #image.paste(wkd_overlay, (50, 50))
+    image = Image.new("RGB", (output_width, output_height), "white")
 
-    # Load font
-    try:
-        font = ImageFont.truetype(font=FONT_PATH, size=35)
-    except IOError:
-        font = ImageFont.load_default()
+    total_hours = len(weather_data)
+    total_panel_width = total_hours * panel_width
+    spare_width = output_width - total_panel_width
+    vertical_spacing = int(spare_width / (total_hours+1))
 
-    draw.text((10, 0), "Weather:", font=font, fill="black")
+    spare_height = output_height - panel_height
 
-    y = 35
-    x = 30
-    print(weather_data)
+    x = vertical_spacing
+    y = int(spare_height / 2)
     for hour in weather_data:
-        font = ImageFont.truetype(font=FONT_PATH, size=30)
-        draw.text((x, y), f"{hour['time']}: {hour['temperature']}", font=font, fill="black")
-        y += 35
+        image.paste(render_weather_hour(hour, output_to_file=True), (x, y))
+        x += panel_width + vertical_spacing
 
     if output_to_file:
         image.save(output_path)
     return image
 
 
-def render_all(trains_data, weather_data, output_path="final.png") -> Image:
-    train_part = render_train_info_image(trains_data)
-    weather_part = render_weather_image(weather_data)
-    #new_img = Image.new("RGB", (max(img1.width, img2.width), img1.height + img2.height))
-    new_img = Image.new("RGB", (800, 480))
+def render_weather_now(weather_data, output_to_file=False, output_height=250, output_width=480, output_path="weather_now.png") -> Image:
+    image = Image.new("RGB", (output_width, output_height), "white")
+    
+    return image
 
-    new_img.paste(train_part, (0, 0))
-    new_img.paste(weather_part, (0, 120))
-    # new_img.save(output_path)
+
+def render_weather_days(weather_data, output_to_file=False, output_height=200, output_width=480, output_path="weather_now.png") -> Image:
+    image = Image.new("RGB", (output_width, output_height), "white")
+    return image
+
+
+def render_footer(weather_updated_time: str, trains_updated_time: str, motd: str,
+                  output_to_file=False, output_height=50, output_width=480, output_path="footer.png"
+                                    ) -> Image.Image:
+    footer_img = Image.new("RGB", (output_width, output_height), "white")
+    draw = ImageDraw.Draw(footer_img)
+    draw.text((10, 10), "Weather updated:", font=TINY_FONT, fill="black")
+
+    draw.text((10, 25), f"  {weather_updated_time}", font=TINY_FONT, fill="black")
+    draw.text((240, 10), "Trains updated:", font=TINY_FONT, fill="black")
+    draw.text((240, 25), f"  {trains_updated_time}", font=TINY_FONT, fill="black")
+     
+    """draw.text((240, 10), f"{motd}", font=TINY_FONT, fill="black")"""
+    if output_to_file:
+        footer_img.save(output_path)
+    return footer_img
+
+
+def render_all(transformed_trains, transformed_weather, train_timestamp, output_to_file=False, output_path="final.png") -> Image:
+    train_part = render_train_info_image(transformed_trains)
+    weather_hours = render_weather_hours_image(transformed_weather["hourly"])
+    footer = render_footer(transformed_weather["update_str"], train_timestamp, motd="Hello World!", output_to_file=True)
+    weather_days = render_weather_days(transformed_weather)
+    weather_now = render_weather_now(transformed_weather)
+
+    new_img = Image.new("RGB", (480, 800))
+    new_img.paste(weather_now, (0,0))
+    new_img.paste(weather_hours, (0, 250))
+    new_img.paste(weather_days, (0, 400))
+    new_img.paste(train_part, (0, 600))
+    new_img.paste(footer, (0, 750))
+    if output_to_file:
+        new_img.save(output_path)
     return new_img

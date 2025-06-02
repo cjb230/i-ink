@@ -15,7 +15,7 @@ def fetch_forecast():
     response.raise_for_status()
     return response.json()
 
-
+"""
 def extract_short_term_forecast(data, hours=6):
     results = []
     for hour in data.get("hourly", [])[:hours]:
@@ -28,18 +28,22 @@ def extract_short_term_forecast(data, hours=6):
                         "temperature": temp_c,
                         "feels_like": feels_like_c})
     return results
-
+"""
+    
 
 def format_forecast_entry(entry):
     # forecast_time, temp, clouds, pop = entry
     return f"{entry['time']}:\nTemp {entry['temperature']}°C, Feels Like: {entry['feels_like']}"
 
 
-def get_short_term_forecast(hours=6):
-    data = fetch_forecast()
+def get_hours_forecast(complete_forecast: dict, hours=6) -> list[dict]:
+    # data = fetch_forecast()
     # print(f"get_short_term_forecast.data = {data}")
-    sunset_time_unix, sunrise_time_unix = data["result"]["current"]["sunset"], data["result"]["current"]["sunrise"]
+    # sunset_time_unix, sunrise_time_unix = data["result"]["current"]["sunset"], data["result"]["current"]["sunrise"]
     # sunset_str = 
-    short_term_forecast = extract_short_term_forecast(data["result"], hours=6)
-    return short_term_forecast
-    return [format_forecast_entry(entry) for entry in short_term_forecast]
+    # all_hours_sorted_ = sorted(complete_forecast["hourly"], key=lambda d: d["dt"])
+    # hourly_forecast = extract_short_term_forecast(data["result"], hours=hours)
+    for k in complete_forecast:
+        print(f"  {k}")
+    return sorted(complete_forecast["hourly"], key=lambda d: d["dt"])[1:hours+1]
+    # return [format_forecast_entry(entry) for entry in short_term_forecast]

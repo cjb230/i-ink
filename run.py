@@ -1,4 +1,4 @@
-from i_ink.main import run_display_update
+from i_ink.main import run_all
 
 if __name__ == "__main__":
-    run_display_update()
+    run_all()
