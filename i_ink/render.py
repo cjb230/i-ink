@@ -38,24 +38,35 @@ def render_train_info_image(all_trains, output_to_file=False, width=480, height=
     draw = ImageDraw.Draw(image)
      #image.paste(wkd_overlay, (50, 50))
 
-    draw.text((10, 0), "Next WKD Trains To:", font=LARGE_FONT, fill="black")
+    draw.text((82, 0), "Next WKD Trains To:", font=LARGE_FONT, fill="black")
 
-    y = 35
-    x = 10
+    title_y = 35
+    start_y = 31
+    y = start_y
+    location_underline_y = 59
     for direction, trains in all_trains.items():
-        draw.text((x, y), f"{NAME_MAP[direction]}:", font=MEDIUM_FONT, fill="black")
-        y += 30
-        x += 30
         z = 0
+        if NAME_MAP[direction] == "Warsaw":
+            title_x = 62
+            time_x = 70
+        else:
+            title_x = 260
+            time_x = 310
+        draw.text((title_x, title_y), f"{NAME_MAP[direction]}", font=MEDIUM_FONT, fill="black")
+        y += 30
+        if NAME_MAP[direction] == "Warsaw":
+            draw.line([(title_x-1, location_underline_y), (title_x + 80, location_underline_y)], fill="black", width=1)
+        else:
+            draw.line([(title_x-1, location_underline_y), (title_x + 158, location_underline_y)], fill="black", width=1)            
         for time, train_no in trains:
             z += 1
+            print(f"y = {y}")
             line = f"{time.strftime('%H:%M')}"  # — ({train_no})"
-            draw.text((x, y), line, font=MEDIUM_FONT, fill="black")
+            draw.text((time_x, y), line, font=MEDIUM_FONT, fill="black")
             y += 27
             if z > 2:
-                y = 30
+                y = start_y
                 break
-        x += 240
 
     if output_to_file:
         image.save(output_path)
