@@ -20,12 +20,14 @@ LOCAL_TZ = datetime.now().astimezone().tzinfo
 try:
     LARGE_FONT = ImageFont.truetype(font=FONT_PATH, size=32)
     MEDIUM_FONT = ImageFont.truetype(font=FONT_PATH, size=23)
+    MEDIUM_SMALL_FONT = ImageFont.truetype(font=FONT_PATH, size=19)
     TINY_FONT = ImageFont.truetype(font=FONT_PATH, size=12)    
 except IOError as ioe:
     print(f"Could not load typeface!\n{ioe}")
     LARGE_FONT = ImageFont.load_default()
     MEDIUM_FONT = LARGE_FONT
     TINY_FONT = LARGE_FONT
+    MEDIUM_SMALL_FONT = LARGE_FONT
 
 NAME_MAP = {"warsaw": "Warsaw","podkowa_lesna": "Podkowa Leśna"}
 
@@ -58,9 +60,8 @@ def render_train_info_image(all_trains, output_to_file=False, width=480, height=
             draw.line([(title_x-1, location_underline_y), (title_x + 80, location_underline_y)], fill="black", width=1)
         else:
             draw.line([(title_x-1, location_underline_y), (title_x + 158, location_underline_y)], fill="black", width=1)            
-        for time, train_no in trains:
+        for time, _ in trains:
             z += 1
-            print(f"y = {y}")
             line = f"{time.strftime('%H:%M')}"  # — ({train_no})"
             draw.text((time_x, y), line, font=MEDIUM_FONT, fill="black")
             y += 27
@@ -76,7 +77,7 @@ def render_train_info_image(all_trains, output_to_file=False, width=480, height=
 
 def render_svg_to_pillow(svg_path: str, scale: float = 1.0) -> Image.Image:
     # Read the SVG file
-    print(f"Rendering {str(svg_path)}")
+    # print(f"Rendering {str(svg_path)}")
     with open(svg_path, "rb") as f:
         svg_data = f.read()
 
@@ -96,11 +97,14 @@ def render_weather_hour(weather_data: dict, width: int=100, height: int=100, ico
     # hour_str = printable_hour(unix_time=weather_data["dt"])
 
     icon_path_1 = os.path.join(ICON_IMAGE_BASE_PATH, icon_file_name_1)
-    print(f"icon_path={icon_path_1}")
-    draw.text((35, 0), weather_data["hour_str"], font=MEDIUM_FONT, fill="black")
+    # print(f"icon_path={icon_path_1}")
+    hour_x: int = 44
+    if len(weather_data["hour_str"]) == 2:
+        hour_x = 35 if weather_data["hour_str"][0] == "2" else 33
+    draw.text((hour_x, 0), weather_data["hour_str"], font=MEDIUM_FONT, fill="black")
     icon_image_1 = render_svg_to_pillow(icon_path_1, scale=0.08)
     image.paste(icon_image_1, (28,26),icon_image_1)
-    print(f"temp = {temp_str}")
+    # print(f"temp = {temp_str}")
     draw.text((19, 63), str(temp_str), font=LARGE_FONT, fill="black")
 
     if output_to_file:
@@ -132,10 +136,56 @@ def render_weather_hours_image(weather_data, output_to_file=False, output_height
         image.save(output_path)
     return image
 
+"""
+"current": {
+  "dt": 1748965886,
+  "sunrise": 1748917156, -- sunrise_str
+  "sunset": 1748976557,   --sunset_str
+  "temp": 292.9, -- temp_str
+  "feels_like": 292.94, -- feels_like_str
+  "pressure": 1013, 
+  "humidity": 77, 
+  "dew_point": 288.76, 
+  "uvi": 0.52,   -- uvi_str
+  "clouds": 100, 
+  "visibility": 10000, 
+  "wind_speed": 0.45, 
+  "wind_deg": 264, 
+  "wind_gust": 0.89, 
+  "weather": [
+    {"id": 804, 
+     "main": "Clouds", 
+     "description": "overcast clouds", 
+     "icon": "04d"}
+  ]
+}
+"""
+def render_weather_now(weather_data: dict, 
+                       output_to_file=False, 
+                       output_height=250, 
+                       output_width=480, 
+                       output_path="weather_now.png") -> Image:
+    icon_x = 20
+    icon_y = 26
+    text_x = 255
+    text_y = 20
 
-def render_weather_now(weather_data, output_to_file=False, output_height=250, output_width=480, output_path="weather_now.png") -> Image:
     image = Image.new("RGB", (output_width, output_height), "white")
-    
+
+    draw = ImageDraw.Draw(image)
+    icon_index = weather_data["weather"][0]["icon"]
+    icon_file_name_1 = icon_index + ".svg"
+    icon_path_1 = os.path.join(ICON_IMAGE_BASE_PATH, icon_file_name_1)
+    icon_image_1 = render_svg_to_pillow(icon_path_1, scale=0.40)
+
+    image.paste(icon_image_1, (icon_x,icon_y),icon_image_1)
+
+    for str in weather_data["text_lines"]:
+        draw.text((text_x, text_y), str, font=MEDIUM_FONT, fill="black")
+        text_y += 25
+
+    if output_to_file:
+        image.save(output_path)
     return image
 
 
@@ -166,7 +216,7 @@ def render_all(transformed_trains, transformed_weather, train_timestamp, output_
     weather_hours = render_weather_hours_image(transformed_weather["hourly"])
     footer = render_footer(transformed_weather["update_str"], train_timestamp, motd="Hello World!", output_to_file=True)
     weather_days = render_weather_days(transformed_weather)
-    weather_now = render_weather_now(transformed_weather)
+    weather_now = render_weather_now(transformed_weather["current"])
 
     new_img = Image.new("RGB", (480, 800))
     new_img.paste(weather_now, (0,0))
