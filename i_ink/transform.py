@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import zoneinfo
 
+
 def printable_hour(unix_time: int) -> str:
     local_time = datetime.fromtimestamp(unix_time)
     return "24" if local_time.hour == 0 else str(local_time.hour)
@@ -49,11 +50,11 @@ def hour_report(minute_conditions: list) -> dict:
         else:
             rain_str = f"{total_rain_mm} mm rain this hour"
     else:  # not raining now
-        rain_start = next(minute["dt"] for minute in future_minutes if minute["precipitation"] > 0)
+        rain_start = next((minute["dt"] for minute in future_minutes if minute["precipitation"] > 0), None)
         if rain_start:
             rain_str = f"Rain starts: {unix_ts_to_str(rain_start, '%H:%M')}"
         else:
-            rain_str = "No rain within an hour"
+            rain_str = "No rain this hour"
     return rain_str
 
 
@@ -85,7 +86,7 @@ def transform_weather(weather_data) -> dict:
     sunset_str = f"Sunset: {unix_ts_to_str(results["current"]["sunset"])}"
     uvi_str = f"UV Index: {uvi_to_str(results["current"]["uvi"])}"
     rain_str = hour_report(weather_data["result"]["minutely"])
-    if weather_data["result"]["alerts"]:
+    if "alerts" in weather_data["result"]:
         results["current"]["alert_str"] = alert_to_str(weather_data["result"]["alerts"][0])
     results["current"]["sunrise_str"] = sunrise_str
     results["current"]["sunset_str"] = sunset_str
@@ -110,7 +111,6 @@ def transform_trains(trains_data, max_display=3, earliest_minutes_ahead=1) -> di
     timestamp_str = trains_data["timestamp"]
     del trains_data["timestamp"]
 
-    #print(train_dict)
     for train_direction, train_list in trains_data.items():
         for train_time, train_no in train_list:
             if train_time > now:

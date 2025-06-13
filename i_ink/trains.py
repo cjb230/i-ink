@@ -29,7 +29,11 @@ def get_next_wkd_trains() -> dict[str, list]:
             match = re.search(r'(\d{4}).*?(\d{2}:\d{2})', chunk)
             if match:
                 train_no, time_str = match.groups()
-                time_obj = datetime.strptime(time_str, "%H:%M").time()
+                try:
+                    time_obj = datetime.strptime(time_str, "%H:%M").time()
+                except ValueError as e:
+                    time_str = time_str.replace("24","00")
+                    time_obj = datetime.strptime(time_str, "%H:%M").time()
                 results.append((time_obj, train_no))
         to_warsaw_results = sorted(results, key=lambda x: x[0])
         # print(to_warsaw_results)
@@ -39,7 +43,11 @@ def get_next_wkd_trains() -> dict[str, list]:
             match = re.search(r'(\d{4}).*?(\d{2}:\d{2})', chunk)
             if match:
                 train_no, time_str = match.groups()
-                time_obj = datetime.strptime(time_str, "%H:%M").time()
+                try:
+                    time_obj = datetime.strptime(time_str, "%H:%M").time()
+                except ValueError as e:
+                    time_str = time_str.replace("24","00")
+                    time_obj = datetime.strptime(time_str, "%H:%M").time()
                 results.append((time_obj, train_no))
         to_podkowa_lesna_results = sorted(results, key=lambda x: x[0])
         kk = {"warsaw": to_warsaw_results,
