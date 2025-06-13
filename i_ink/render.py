@@ -89,4 +89,5 @@ def render_all(trains_data, weather_data, output_path="final.png") -> Image:
     new_img.paste(train_part, (0, 0))
     new_img.paste(weather_part, (0, 120))
     # new_img.save(output_path)
+    print("Image pasted.")
     return new_img

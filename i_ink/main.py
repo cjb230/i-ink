@@ -27,6 +27,7 @@ def run_display_update():
     print("Rendering done, sending to screen")
     epd = epd7in5_V2.EPD()
     epd.init()
+    epd.Clear()
     buf = epd.getbuffer(result_image)
     epd.display(buf)
     print("Sent to screen")
