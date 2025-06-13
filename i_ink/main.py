@@ -1,7 +1,7 @@
 import time
 from PIL import Image, ImageDraw
 from gpiozero import Device
-from . import epd7in5_V2
+# from . import epd7in5_V2
 
 from .display import conditional_update_screen
 from .trains import get_next_wkd_trains, filter_trains_for_display
@@ -28,7 +28,7 @@ def run_display_update():
     result_image: Image = render_all(data["trains"], data["weather"])
     #result_image.save("xyz.png")
     print("Rendering done, sending to screen")
-    epd = epd7in5_V2.EPD()
+    """epd = epd7in5_V2.EPD()
     epd.init()
     epd.Clear()
     buf = epd.getbuffer(result_image)
@@ -37,6 +37,7 @@ def run_display_update():
     Device.pin_factory.close()
     print("pin factory closed")
     exit()
+    """
 
 
 
