@@ -1,11 +1,15 @@
+import platform
 from .interface import DisplayInterface
 
-try:
+def is_raspberry_pi() -> bool:
+    return platform.system() == "Linux" and "raspberrypi" in platform.uname().nodename.lower()
+
+if is_raspberry_pi():
+    print("Detected Raspberry Pi. Using real display class.")
     from .real import RealDisplay
     _DisplayClass = RealDisplay
-    print("Using real display class.")
-except ImportError:
-    print("Could not import real display class.\nImporting mock display class instead...")
+else:
+    print("Not a Raspberry Pi. Using mock display class.")
     from .mock import MockDisplay
     _DisplayClass = MockDisplay
 
