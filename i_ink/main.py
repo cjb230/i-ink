@@ -3,8 +3,8 @@ from PIL import Image, ImageDraw
 from gpiozero import Device
 # from . import epd7in5_V2
 
-from display import get_display
-from .display import conditional_update_screen
+from .display import get_display
+
 from .trains import get_next_wkd_trains, filter_trains_for_display
 from .render import render_all
 from .transform import transform_weather, transform_trains
@@ -13,20 +13,19 @@ from .weather import fetch_forecast
 
 SLEEP_DURATION_S = 240
 DISPLAY = get_display()
-PREVIOUS_IMAGE: Image = Image.new("RGB", (480, 750), "white")
+PREVIOUS_IMAGE_BODY: Image = Image.new("RGB", (480, 750), "white")
 
 
 def conditional_update_screen(image: Image):
-    
-    epd = epd7in5_V2.EPD()
-    epd.init()
-    buf = epd.getbuffer(image)
-    epd.display(buf)
-    Device.pin_factory.close()
-    
+    global PREVIOUS_IMAGE_BODY
+    new_image_body = image.crop((0, 0, 480, 750))
+    if new_image_body.tobytes() != PREVIOUS_IMAGE_BODY.tobytes():
+        print("Image changed, updating screen")
+        DISPLAY.show(image)
+        PREVIOUS_IMAGE_BODY = new_image_body
+    else:
+        print("Image unchanged, not updating screen")
     return
-
-
 
 
 def collect_all_data():
