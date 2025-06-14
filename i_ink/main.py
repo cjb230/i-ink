@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw
 from gpiozero import Device
 # from . import epd7in5_V2
 
+from display import get_display
 from .display import conditional_update_screen
 from .trains import get_next_wkd_trains, filter_trains_for_display
 from .render import render_all
@@ -11,6 +12,21 @@ from .weather import fetch_forecast
 
 
 SLEEP_DURATION_S = 240
+DISPLAY = get_display()
+PREVIOUS_IMAGE: Image = Image.new("RGB", (480, 750), "white")
+
+
+def conditional_update_screen(image: Image):
+    
+    epd = epd7in5_V2.EPD()
+    epd.init()
+    buf = epd.getbuffer(image)
+    epd.display(buf)
+    Device.pin_factory.close()
+    
+    return
+
+
 
 
 def collect_all_data():
