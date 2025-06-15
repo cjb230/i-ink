@@ -2,7 +2,7 @@ import platform
 from .interface import DisplayInterface
 
 def is_raspberry_pi() -> bool:
-    return platform.system() == "Linux" and "raspberrypi" in platform.uname().nodename.lower()
+    return platform.system() == "Linux" and "raspbian" in platform.uname().version.lower()
 
 if is_raspberry_pi():
     print("Detected Raspberry Pi. Using real display class.")
