@@ -1,4 +1,5 @@
 #!/bin/bash
+rm /home/cjb/i-ink.log
 exec >> /home/cjb/i-ink.log 2>&1
 set -x
 cd /home/cjb/repos/i-ink
