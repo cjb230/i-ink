@@ -66,7 +66,15 @@ def alert_to_str(alert: dict) -> str:
 def transform_weather(weather_data) -> dict:
     results = {}
     results["update_str"] = weather_data["timestamp"]
-
+    if "result" not in weather_data:
+        print(f"Error: No result in weather data: {weather_data}")
+        results["error"] = "No weather data available"
+        return results
+    if weather_data["error"]:
+        print("Error in weather data:", weather_data["error"])
+        results["error"] = weather_data["error"]
+        return results
+    
     results["hourly"] = weather_data["result"]["hourly"][1:5]
     for hour in results["hourly"]:
         hour["hour_str"] = printable_hour(unix_time=hour["dt"])

@@ -9,26 +9,11 @@ BASE_URL = "http://192.168.1.129:8080/data"
 
 
 def fetch_forecast():
-    print(f"Fetching weather... ({BASE_URL})")
+    print(f"Fetching weather from ({BASE_URL})...", end="")
     response = requests.get(BASE_URL, timeout=10)
-    print("Fetched.")
+    print(" fetched.")
     response.raise_for_status()
     return response.json()
-
-"""
-def extract_short_term_forecast(data, hours=6):
-    results = []
-    for hour in data.get("hourly", [])[:hours]:
-        hour_ts = datetime.fromtimestamp(hour["dt"], timezone.utc)
-
-        temp_c = round(hour["temp"] - 273.15)
-        feels_like_c = round(hour["feels_like"] - 273.15)
-        time_str = hour_ts.astimezone(zoneinfo.ZoneInfo("Europe/Warsaw")).strftime("%H:%M")
-        results.append({"time": time_str,
-                        "temperature": temp_c,
-                        "feels_like": feels_like_c})
-    return results
-"""
     
 
 def format_forecast_entry(entry):

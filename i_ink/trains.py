@@ -12,10 +12,10 @@ def get_next_wkd_trains() -> dict[str, list]:
     headers = {"User-Agent": "Mozilla/5.0"}
 
     try:
-        print("Fetching WKD data...")
+        print("Fetching WKD data... ", end="")
         response = requests.get(url, headers=headers, timeout=10)
         doc = html.fromstring(response.content)
-        print(f"Fetched {len(response.content)} chars")
+        print(f"fetched {len(response.content)} chars")
 
         to_warsaw_element = doc.xpath('//*[@id="module-123"]/div[2]/div[2]/div[1]/div[3]/div[1]/ul/li[18]')
         to_podkowa_lesna_element = doc.xpath('//*[@id="module-123"]/div[2]/div[2]/div[1]/div[2]/div[2]/ul/li[18]')
@@ -56,8 +56,7 @@ def get_next_wkd_trains() -> dict[str, list]:
         return kk
     except Exception as e:
         print(f"Error fetching WKD data: {e}")
-        print(match)
-        exit()
+        raise e
 
 
 def filter_trains_for_display(train_dict, max_display=3, earliest_minutes_ahead=1):

@@ -46,8 +46,6 @@ def render_train_info_image(all_trains, output_to_file=False, width=480, height=
     start_y = 31
     y = start_y
     location_underline_y = 59
-    for key in all_trains:
-        print(key)
     for direction, trains in all_trains.items():
         z = 0
         if NAME_MAP[direction] == "Warsaw":
