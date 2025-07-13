@@ -95,6 +95,8 @@ def transform_weather(weather_data) -> dict:
     rain_str = hour_report(weather_data['result']['minutely'])
     if "alerts" in weather_data["result"]:
         results["current"]["alert_str"] = alert_to_str(weather_data["result"]["alerts"][0])
+        results["current"]["alert_start"] = unix_ts_to_str(weather_data["result"]["alerts"][0]["start"], "%H:%M")
+        results["current"]["alert_end"] = unix_ts_to_str(weather_data["result"]["alerts"][0]["end"], "%H:%M")
     results["current"]["sunrise_str"] = sunrise_str
     results["current"]["sunset_str"] = sunset_str
 
@@ -107,6 +109,11 @@ def transform_weather(weather_data) -> dict:
         text_lines.append("")
 
     text_lines.append(rain_str)
+    if "alert_str" in results["current"]:
+        text_lines.append("")
+        time_str = "Alert: " + results["current"]["alert_start"] + " - " + results["current"]["alert_end"]
+        text_lines.append(time_str)
+        text_lines.append(results["current"]["alert_str"])
     results["current"]["text_lines"] = text_lines
     return results
 

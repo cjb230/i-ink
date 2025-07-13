@@ -14,11 +14,6 @@ def fetch_forecast():
     print(" fetched.")
     response.raise_for_status()
     return response.json()
-    
-
-def format_forecast_entry(entry):
-    # forecast_time, temp, clouds, pop = entry
-    return f"{entry[0]}:\nTemp {entry[1]}°C, Clouds: {entry[2]}%, Rain Probability: {entry[3]}%"
 
 
 def get_hours_forecast(complete_forecast: dict, hours=6) -> list[dict]:
@@ -31,4 +26,3 @@ def get_hours_forecast(complete_forecast: dict, hours=6) -> list[dict]:
     for k in complete_forecast:
         print(f"  {k}")
     return sorted(complete_forecast["hourly"], key=lambda d: d["dt"])[1:hours+1]
-    # return [format_forecast_entry(entry) for entry in short_term_forecast]

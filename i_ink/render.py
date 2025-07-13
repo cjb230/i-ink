@@ -31,6 +31,20 @@ except IOError as ioe:
 
 NAME_MAP = {"warsaw": "Warsaw","podkowa_lesna": "Podkowa Leśna"}
 
+def split_at_spaces(text, max_len=20):
+    result = []
+    while text:
+        if len(text) <= max_len:
+            result.append(text)
+            break
+        split_pos = text.rfind(" ", 0, max_len + 1)
+        if split_pos == -1:
+            split_pos = max_len  # no space found, hard split
+        result.append(text[:split_pos].rstrip())
+        text = text[split_pos:].lstrip()
+    return result
+
+
 def render_train_info_image(all_trains, output_to_file=False, width=480, height=150, output_path="train_times.png"):
     """
     Renders a white background image with train times in black text.
@@ -181,8 +195,15 @@ def render_weather_now(weather_data: dict,
     image.paste(icon_image_1, (icon_x,icon_y),icon_image_1)
 
     for str in weather_data["text_lines"]:
-        draw.text((text_x, text_y), str, font=MEDIUM_FONT, fill="black")
-        text_y += 25
+        if len(str) > 19:
+            # Split the string into multiple lines if it's too long
+            split_lines = split_at_spaces(str, max_len=19)
+            for line in split_lines:
+                draw.text((text_x, text_y), line, font=MEDIUM_FONT, fill="black")
+                text_y += 25   
+        else:
+            draw.text((text_x, text_y), str, font=MEDIUM_FONT, fill="black")
+            text_y += 25
 
     if output_to_file:
         image.save(output_path)
