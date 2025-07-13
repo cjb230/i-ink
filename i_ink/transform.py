@@ -87,7 +87,6 @@ def transform_weather(weather_data) -> dict:
     results["update_str"] = time_str
     results["current"] = weather_data["result"]["current"]
 
-    
     temp_str = f"Temp: {k_to_c_str(results['current']['temp'])}"
     feels_like_str = f"Feels like: {k_to_c_str(results['current']['feels_like'])}"
     sunrise_str = f"Sunrise: {unix_ts_to_str(results['current']['sunrise'])}"
