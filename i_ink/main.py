@@ -21,12 +21,16 @@ PREVIOUS_IMAGE_BODY: Image = Image.new("RGB", (480, 750), "white")
 
 def cleanup():
     DISPLAY.clear()
-    sys.exit
+
+
+def handle_signal(signum, frame):
+    cleanup()
+    sys.exit(0)
 
 
 atexit.register(cleanup)
-signal.signal(signal.SIGINT, cleanup)  # Ctrl+C
-signal.signal(signal.SIGTERM, cleanup) 
+signal.signal(signal.SIGINT, handle_signal)  # Ctrl+C
+signal.signal(signal.SIGTERM, handle_signal) 
 
 
 def conditional_update_screen(image: Image):
