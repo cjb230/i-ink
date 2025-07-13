@@ -18,7 +18,7 @@ def fetch_forecast():
 
 def format_forecast_entry(entry):
     # forecast_time, temp, clouds, pop = entry
-    return f"{entry['time']}:\nTemp {entry['temperature']}°C, Feels Like: {entry['feels_like']}"
+    return f"{entry[0]}:\nTemp {entry[1]}°C, Clouds: {entry[2]}%, Rain Probability: {entry[3]}%"
 
 
 def get_hours_forecast(complete_forecast: dict, hours=6) -> list[dict]:
