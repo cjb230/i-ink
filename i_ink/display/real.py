@@ -10,8 +10,13 @@ class RealDisplay(DisplayInterface):
             raise ImportError(f"RealDisplay unavailable: {e}")
         self.epd = EPD()
         self.epd.init()
+
     def show(self, image):
         buf = self.epd.getbuffer(image)
         self.epd.display(buf)
+
     def sleep(self):
         self.epd.sleep()
+
+    def clear(self):
+        self.epd.Clear()
