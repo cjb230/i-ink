@@ -36,6 +36,7 @@ def collect_all_data():
         "weather": raw_weather_forecast
     }
 
+
 def run_display_update():
     data = collect_all_data()
     print("Data collected.")
@@ -55,20 +56,24 @@ def run_display_update():
     """
 
 
-
-
 def run_all():
     n = 1
     while True:
-        print(f"Starting run {n}")
-        data = collect_all_data()
-        transformed_weather = transform_weather(data["weather"])
-        transformed_trains = transform_trains(data["trains"])
-        train_timestamp = transformed_trains["update_str"]
-        del transformed_trains["update_str"]
-        result_image: Image = render_all(transformed_trains, transformed_weather, train_timestamp)
-        conditional_update_screen(result_image)
-        result_image.save("all.png")
-        n += 1
-        print(f"Sleeping for {SLEEP_DURATION_S} seconds at {time.localtime()} .\n")
-        time.sleep(SLEEP_DURATION_S)
+        try:
+            print(f"Starting run {n}")
+            n += 1
+            data = collect_all_data()
+            transformed_weather = transform_weather(data["weather"])
+            transformed_trains = transform_trains(data["trains"])
+            train_timestamp = transformed_trains["update_str"]
+            del transformed_trains["update_str"]
+            result_image: Image = render_all(transformed_trains, transformed_weather, train_timestamp)
+            conditional_update_screen(result_image)
+            result_image.save("all.png")
+            print(f"Sleeping for {SLEEP_DURATION_S} seconds at {time.localtime()} .\n")
+            time.sleep(SLEEP_DURATION_S)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            print("Sleeping for 60 seconds before retrying...")
+            time.sleep(60)
+            continue
