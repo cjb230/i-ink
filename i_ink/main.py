@@ -2,13 +2,12 @@ import time
 import atexit
 import signal
 import sys
-from PIL import Image, ImageDraw
-from gpiozero import Device
+from PIL import Image
 # from . import epd7in5_V2
 
 from .display import get_display
 
-from .trains import get_next_wkd_trains, filter_trains_for_display
+from .trains import get_next_wkd_trains
 from .render import render_all
 from .transform import transform_weather, transform_trains
 from .weather import fetch_forecast
@@ -52,25 +51,6 @@ def collect_all_data():
         "trains": raw_trains,
         "weather": raw_weather_forecast
     }
-
-
-def run_display_update():
-    data = collect_all_data()
-    print("Data collected.")
-    # print(data["weather"])
-    result_image: Image = render_all(data["trains"], data["weather"])
-    #result_image.save("xyz.png")
-    print("Rendering done, sending to screen")
-    """epd = epd7in5_V2.EPD()
-    epd.init()
-    epd.Clear()
-    buf = epd.getbuffer(result_image)
-    epd.display(buf)
-    print("Sent to screen")
-    Device.pin_factory.close()
-    print("pin factory closed")
-    exit()
-    """
 
 
 def run_all():

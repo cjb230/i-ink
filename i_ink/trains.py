@@ -31,7 +31,7 @@ def get_next_wkd_trains() -> dict[str, list]:
                 train_no, time_str = match.groups()
                 try:
                     time_obj = datetime.strptime(time_str, "%H:%M").time()
-                except ValueError as e:
+                except ValueError:
                     time_str = time_str.replace("24","00")
                     time_obj = datetime.strptime(time_str, "%H:%M").time()
                 results.append((time_obj, train_no))
@@ -45,7 +45,7 @@ def get_next_wkd_trains() -> dict[str, list]:
                 train_no, time_str = match.groups()
                 try:
                     time_obj = datetime.strptime(time_str, "%H:%M").time()
-                except ValueError as e:
+                except ValueError:
                     time_str = time_str.replace("24","00")
                     time_obj = datetime.strptime(time_str, "%H:%M").time()
                 results.append((time_obj, train_no))

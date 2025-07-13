@@ -5,7 +5,6 @@ class RealDisplay(DisplayInterface):
         # Import hardware libs only when instantiating RealDisplay
         try:
             from .epd7in5_V2 import EPD
-            import RPi.GPIO as GPIO
         except ImportError as e:
             raise ImportError(f"RealDisplay unavailable: {e}")
         self.epd = EPD()

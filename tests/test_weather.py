@@ -1,10 +1,8 @@
 from pathlib import Path
-from datetime import datetime
 import pytest
 import json
 from freezegun import freeze_time
 import pytesseract
-from PIL import Image
 
 from i_ink.transform import transform_weather
 from i_ink.render import render_weather_now

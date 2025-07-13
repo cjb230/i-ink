@@ -1,5 +1,5 @@
-from PIL import Image, ImageDraw, ImageFont
-from i_ink.render import render_all, render_weather_hours_image
+from PIL import Image
+from i_ink.render import render_all
 from i_ink.transform import transform_weather, transform_trains
 from i_ink.main import collect_all_data
  
