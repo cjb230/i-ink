@@ -13,9 +13,10 @@ def _parse_train_element(element) -> list:
       '6128.a,.b{fill:none;}...20:42.a{fill:#004982;}'
     Returns a sorted list of (datetime.time, train_number) tuples.
     """
+    seen = set()
     results = []
     for chunk in element.text_content().split():
-        match = re.search(r'(\d{4}).*?(\d{2}:\d{2})', chunk)
+        match = re.search(r'(\d+).*?(\d{2}:\d{2})', chunk)
         if match:
             train_no, time_str = match.groups()
             try:
@@ -23,7 +24,10 @@ def _parse_train_element(element) -> list:
             except ValueError:
                 time_str = time_str.replace("24", "00")
                 time_obj = datetime.strptime(time_str, "%H:%M").time()
-            results.append((time_obj, train_no))
+            key = (time_obj, train_no.lstrip("0"))
+            if key not in seen:
+                seen.add(key)
+                results.append((time_obj, train_no))
     return sorted(results, key=lambda x: x[0])
 
 
