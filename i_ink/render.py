@@ -194,15 +194,15 @@ def render_weather_now(weather_data: dict,
 
     image.paste(icon_image_1, (icon_x,icon_y),icon_image_1)
 
-    for str in weather_data["text_lines"]:
-        if len(str) > 19:
+    for line in weather_data["text_lines"]:
+        if len(line) > 19:
             # Split the string into multiple lines if it's too long
-            split_lines = split_at_spaces(str, max_len=19)
-            for line in split_lines:
-                draw.text((text_x, text_y), line, font=MEDIUM_FONT, fill="black")
-                text_y += 25   
+            split_lines = split_at_spaces(line, max_len=19)
+            for split_line in split_lines:
+                draw.text((text_x, text_y), split_line, font=MEDIUM_FONT, fill="black")
+                text_y += 25
         else:
-            draw.text((text_x, text_y), str, font=MEDIUM_FONT, fill="black")
+            draw.text((text_x, text_y), line, font=MEDIUM_FONT, fill="black")
             text_y += 25
 
     if output_to_file:
