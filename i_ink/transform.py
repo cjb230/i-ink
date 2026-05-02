@@ -123,7 +123,8 @@ def transform_weather(weather_data) -> dict:
 
 
 def transform_trains(trains_data, max_display=3, earliest_minutes_ahead=1) -> dict:
-    now = datetime.now().time()
+    today = datetime.today()
+    now_dt = datetime.combine(today, datetime.now().time())
     results = {"warsaw": [],  "podkowa_lesna": []}
 
     timestamp_str = trains_data["timestamp"]
@@ -131,12 +132,14 @@ def transform_trains(trains_data, max_display=3, earliest_minutes_ahead=1) -> di
 
     for train_direction, train_list in trains_data.items():
         for train_time, train_no in train_list:
-            if train_time > now:
-                delta = datetime.combine(datetime.today(), train_time) - datetime.combine(datetime.today(), now)
-                if delta >= timedelta(minutes=earliest_minutes_ahead):
-                    results[train_direction].append((train_time, train_no))
-                if len(results[train_direction]) == max_display:
-                    break
+            train_dt = datetime.combine(today, train_time)
+            if train_dt < now_dt:
+                train_dt += timedelta(days=1)
+            delta = train_dt - now_dt
+            if delta >= timedelta(minutes=earliest_minutes_ahead):
+                results[train_direction].append((train_time, train_no))
+            if len(results[train_direction]) == max_display:
+                break
 
     dt_utc = datetime.fromisoformat(timestamp_str)
     results["update_str"] = dt_utc.astimezone(zoneinfo.ZoneInfo("Europe/Warsaw")).strftime("%H:%M:%S")

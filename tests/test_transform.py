@@ -42,6 +42,19 @@ def test_transform_weather_missing_minutely():
     assert "No minute-by-minute data" in result["current"]["text_lines"]
 
 
+@freeze_time("2025-01-01 23:55:00")
+def test_transform_trains_includes_post_midnight_trains():
+    # At 23:55, trains at 00:05 and 00:12 are only 10-17 minutes away
+    # and should appear, not be filtered out by a naive time comparison
+    trains_data = {
+        "warsaw": [(time(0, 5), "1001"), (time(0, 12), "1002")],
+        "podkowa_lesna": [],
+        "timestamp": "2025-01-01T23:55:00+00:00",
+    }
+    result = transform_trains(trains_data)
+    assert len(result["warsaw"]) == 2
+
+
 def test_hour_report_all_minutes_in_past():
     # All timestamps are in the past — future_minutes will be empty
     past_minutes = [{"dt": 1, "precipitation": 0.0} for _ in range(60)]
