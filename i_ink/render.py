@@ -143,7 +143,7 @@ def render_weather_hours_image(weather_data, output_to_file=False, output_height
     x = vertical_spacing
     y = int(spare_height / 2)
     for hour in weather_data:
-        image.paste(render_weather_hour(hour, output_to_file=True), (x, y))
+        image.paste(render_weather_hour(hour, output_to_file=False), (x, y))
         x += panel_width + vertical_spacing
 
     if output_to_file:
