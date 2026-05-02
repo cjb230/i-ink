@@ -37,6 +37,7 @@ def conditional_update_screen(image: Image):
     new_image_body = image.crop((0, 0, 480, 750))
     if new_image_body.tobytes() != PREVIOUS_IMAGE_BODY.tobytes():
         print("Image changed, updating screen")
+        DISPLAY.clear()
         DISPLAY.show(image)
         PREVIOUS_IMAGE_BODY = new_image_body
     else:
@@ -74,5 +75,3 @@ def run_all():
             print("Sleeping for 60 seconds before retrying...")
             time.sleep(60)
             continue
-        finally:
-            cleanup()
