@@ -3,7 +3,31 @@ from lxml import html
 import re
 from datetime import datetime, timedelta, timezone
 
-def get_next_wkd_trains() -> dict[str, list]:
+def _parse_train_element(element) -> list:
+    """
+    Parses train departures from a WKD timetable HTML element.
+
+    The element's text content is a mix of SVG icon styling and train data.
+    Each whitespace-separated chunk may contain a 4-digit train number and an
+    HH:MM departure time, e.g.:
+      '6128.a,.b{fill:none;}...20:42.a{fill:#004982;}'
+    Returns a sorted list of (datetime.time, train_number) tuples.
+    """
+    results = []
+    for chunk in element.text_content().split():
+        match = re.search(r'(\d{4}).*?(\d{2}:\d{2})', chunk)
+        if match:
+            train_no, time_str = match.groups()
+            try:
+                time_obj = datetime.strptime(time_str, "%H:%M").time()
+            except ValueError:
+                time_str = time_str.replace("24", "00")
+                time_obj = datetime.strptime(time_str, "%H:%M").time()
+            results.append((time_obj, train_no))
+    return sorted(results, key=lambda x: x[0])
+
+
+def get_next_wkd_trains() -> dict[str, list | str]:
     """
     Scrapes the WKD website for the next scheduled trains at Malichy station.
     Returns a sorted list of (time, train_number) tuples.
@@ -17,43 +41,16 @@ def get_next_wkd_trains() -> dict[str, list]:
         doc = html.fromstring(response.content)
         print(f"fetched {len(response.content)} chars")
 
-        to_warsaw_element = doc.xpath('//*[@id="module-123"]/div[2]/div[2]/div[1]/div[3]/div[1]/ul/li[18]')
-        to_podkowa_lesna_element = doc.xpath('//*[@id="module-123"]/div[2]/div[2]/div[1]/div[2]/div[2]/ul/li[18]')
+        xpaths = {
+            "warsaw":        '//*[@id="module-123"]/div[2]/div[2]/div[1]/div[3]/div[1]/ul/li[18]',
+            "podkowa_lesna": '//*[@id="module-123"]/div[2]/div[2]/div[1]/div[2]/div[2]/ul/li[18]',
+        }
 
-        if not to_warsaw_element and not to_podkowa_lesna_element:
-            return []
-
-        chunks = to_warsaw_element[0].text_content().split()
-        results = []
-        for chunk in chunks:
-            match = re.search(r'(\d{4}).*?(\d{2}:\d{2})', chunk)
-            if match:
-                train_no, time_str = match.groups()
-                try:
-                    time_obj = datetime.strptime(time_str, "%H:%M").time()
-                except ValueError:
-                    time_str = time_str.replace("24","00")
-                    time_obj = datetime.strptime(time_str, "%H:%M").time()
-                results.append((time_obj, train_no))
-        to_warsaw_results = sorted(results, key=lambda x: x[0])
-        # print(to_warsaw_results)
-        chunks = to_podkowa_lesna_element[0].text_content().split()
-        results = []
-        for chunk in chunks:
-            match = re.search(r'(\d{4}).*?(\d{2}:\d{2})', chunk)
-            if match:
-                train_no, time_str = match.groups()
-                try:
-                    time_obj = datetime.strptime(time_str, "%H:%M").time()
-                except ValueError:
-                    time_str = time_str.replace("24","00")
-                    time_obj = datetime.strptime(time_str, "%H:%M").time()
-                results.append((time_obj, train_no))
-        to_podkowa_lesna_results = sorted(results, key=lambda x: x[0])
-        kk = {"warsaw": to_warsaw_results,
-              "podkowa_lesna": to_podkowa_lesna_results,
-              "timestamp": datetime.now(timezone.utc).isoformat()}
-        return kk
+        result = {"timestamp": datetime.now(timezone.utc).isoformat()}
+        for direction, xpath in xpaths.items():
+            elements = doc.xpath(xpath)
+            result[direction] = _parse_train_element(elements[0]) if elements else []
+        return result
     except Exception as e:
         print(f"Error fetching WKD data: {e}")
         raise e
