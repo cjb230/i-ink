@@ -1,3 +1,4 @@
+import pytest
 from unittest.mock import MagicMock
 from i_ink.trains import get_next_wkd_trains, _parse_train_element
 
@@ -14,6 +15,7 @@ def test_parse_train_element_deduplicates_same_train_different_leading_zeros():
     assert result[0][0].strftime("%H:%M") == "00:12"
 
 
+@pytest.mark.integration
 def test_scraper_runs():
     trains = get_next_wkd_trains()
     assert isinstance(trains, dict), "Expected trains to be a dictionary"

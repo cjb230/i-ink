@@ -43,4 +43,4 @@ pytest -m "not integration"   # offline-safe subset
 
 - `filter_trains_for_display` in `trains.py` is unused — filtering is done in `transform_trains`.
 - `pyproject.toml` is missing several runtime dependencies (`cairosvg`, `python-dotenv`, `zoneinfo` backport).
-- Weather icon SVGs must be present in `svg/` at the repo root (not tracked in git — source them from OpenWeatherMap).
+- Weather icon SVGs must be present in `svg/` at the repo root (not tracked in git — source them from OpenWeatherMap). A missing SVG raises `FileNotFoundError` and terminates the process, which is intentional.
