@@ -232,10 +232,28 @@ def render_footer(weather_updated_time: str, trains_updated_time: str, motd: str
     return footer_img
 
 
+def render_weather_error(message: str, width: int = 480, height: int = 600) -> Image.Image:
+    image = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(image)
+    draw.text((20, height // 2 - 15), f"Weather unavailable: {message}", font=MEDIUM_FONT, fill="black")
+    return image
+
+
 def render_all(transformed_trains, transformed_weather, train_timestamp, output_to_file=False, output_path="final.png") -> Image:
     train_part = render_train_info_image(transformed_trains)
-    weather_hours = render_weather_hours_image(transformed_weather["hourly"])
     footer = render_footer(transformed_weather["update_str"], train_timestamp, motd="Hello World!", output_to_file=True)
+
+    if "error" in transformed_weather:
+        weather_panel = render_weather_error(transformed_weather["error"])
+        new_img = Image.new("RGB", (480, 800))
+        new_img.paste(weather_panel, (0, 0))
+        new_img.paste(train_part, (0, 600))
+        new_img.paste(footer, (0, 750))
+        if output_to_file:
+            new_img.save(output_path)
+        return new_img
+
+    weather_hours = render_weather_hours_image(transformed_weather["hourly"])
     weather_days = render_weather_days(transformed_weather)
     weather_now = render_weather_now(transformed_weather["current"])
 
