@@ -62,6 +62,7 @@ def render_train_info_image(all_trains, output_to_file=False, width=480, height=
     location_underline_y = 59
     for direction, trains in all_trains.items():
         z = 0
+        y = start_y
         if NAME_MAP[direction] == "Warsaw":
             title_x = 62
             time_x = 70
