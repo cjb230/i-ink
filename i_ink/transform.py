@@ -27,7 +27,7 @@ def uvi_to_str(uvi: float) -> str:
         return_str = 'Moderate'
     elif uvi < 7:
         return_str = "High"
-    elif return_str < 10:
+    elif uvi < 10:
         return_str = "Very high"
     else:
         return_str = "Extreme"
