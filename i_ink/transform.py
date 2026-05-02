@@ -95,7 +95,8 @@ def transform_weather(weather_data) -> dict:
     sunrise_str = f"Sunrise: {unix_ts_to_str(results['current']['sunrise'])}"
     sunset_str = f"Sunset: {unix_ts_to_str(results['current']['sunset'])}"
     uvi_str = f"UV Index: {uvi_to_str(results['current']['uvi'])}"
-    rain_str = hour_report(weather_data['result']['minutely'])
+    minutely = weather_data['result'].get('minutely')
+    rain_str = hour_report(minutely) if minutely else "No minute-by-minute data"
     if "alerts" in weather_data["result"]:
         results["current"]["alert_str"] = alert_to_str(weather_data["result"]["alerts"][0])
         results["current"]["alert_start"] = unix_ts_to_str(weather_data["result"]["alerts"][0]["start"], "%H:%M")

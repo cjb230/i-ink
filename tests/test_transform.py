@@ -1,7 +1,9 @@
 import pytest
+import json
 from datetime import time
+from pathlib import Path
 from freezegun import freeze_time
-from i_ink.transform import uvi_to_str, hour_report, transform_trains
+from i_ink.transform import uvi_to_str, hour_report, transform_trains, transform_weather
 
 
 @pytest.mark.parametrize("uvi,expected", [
@@ -30,6 +32,14 @@ def test_transform_trains_max_display():
     result = transform_trains(trains_data, max_display=3)
     assert len(result["warsaw"]) <= 3
     assert len(result["podkowa_lesna"]) <= 3
+
+
+@freeze_time("2025-07-13T08:34:08.557943+00:00")
+def test_transform_weather_missing_minutely():
+    data = json.loads(Path("tests/data/alert_status.txt").read_text(encoding="utf-8"))
+    del data["result"]["minutely"]
+    result = transform_weather(data)
+    assert "No minute-by-minute data" in result["current"]["text_lines"]
 
 
 def test_hour_report_all_minutes_in_past():
