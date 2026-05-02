@@ -23,6 +23,7 @@ def cleanup():
 
 
 def handle_signal(signum, frame):
+    atexit.unregister(cleanup)
     cleanup()
     sys.exit(0)
 
