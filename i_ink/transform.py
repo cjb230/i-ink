@@ -134,7 +134,7 @@ def transform_trains(trains_data, max_display=3, earliest_minutes_ahead=1) -> di
                 delta = datetime.combine(datetime.today(), train_time) - datetime.combine(datetime.today(), now)
                 if delta >= timedelta(minutes=earliest_minutes_ahead):
                     results[train_direction].append((train_time, train_no))
-                if len(results) == max_display:
+                if len(results[train_direction]) == max_display:
                     break
 
     dt_utc = datetime.fromisoformat(timestamp_str)

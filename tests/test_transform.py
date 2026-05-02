@@ -1,5 +1,7 @@
 import pytest
-from i_ink.transform import uvi_to_str, hour_report
+from datetime import time
+from freezegun import freeze_time
+from i_ink.transform import uvi_to_str, hour_report, transform_trains
 
 
 @pytest.mark.parametrize("uvi,expected", [
@@ -16,6 +18,18 @@ from i_ink.transform import uvi_to_str, hour_report
 ])
 def test_uvi_to_str(uvi, expected):
     assert uvi_to_str(uvi) == expected
+
+
+@freeze_time("2025-01-01 08:00:00")
+def test_transform_trains_max_display():
+    trains_data = {
+        "warsaw":        [(time(8, 5), "1001"), (time(8, 10), "1002"), (time(8, 15), "1003"), (time(8, 20), "1004"), (time(8, 25), "1005")],
+        "podkowa_lesna": [(time(8, 5), "2001"), (time(8, 10), "2002"), (time(8, 15), "2003"), (time(8, 20), "2004"), (time(8, 25), "2005")],
+        "timestamp": "2025-01-01T08:00:00+00:00",
+    }
+    result = transform_trains(trains_data, max_display=3)
+    assert len(result["warsaw"]) <= 3
+    assert len(result["podkowa_lesna"]) <= 3
 
 
 def test_hour_report_all_minutes_in_past():
