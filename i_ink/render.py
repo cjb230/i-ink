@@ -241,7 +241,7 @@ def render_weather_error(message: str, width: int = 480, height: int = 600) -> I
 
 def render_all(transformed_trains, transformed_weather, train_timestamp, output_to_file=False, output_path="final.png") -> Image:
     train_part = render_train_info_image(transformed_trains)
-    footer = render_footer(transformed_weather["update_str"], train_timestamp, motd="Hello World!", output_to_file=True)
+    footer = render_footer(transformed_weather["update_str"], train_timestamp, motd="Hello World!", output_to_file=output_to_file)
 
     if "error" in transformed_weather:
         weather_panel = render_weather_error(transformed_weather["error"])
