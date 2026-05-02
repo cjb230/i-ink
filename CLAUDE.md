@@ -14,10 +14,11 @@ python run.py          # development (uses mock display, saves out.png)
 ## Testing
 
 ```bash
-pytest
+pytest                        # runs all tests (requires network)
+pytest -m "not integration"   # offline-safe subset
 ```
 
-- `tests/test_trains.py` — makes a live HTTP request to wkd.com.pl; will fail offline
+- `tests/test_trains.py::test_scraper_runs` is marked `@pytest.mark.integration` — it makes a live HTTP request to wkd.com.pl and will fail offline. Skip it with `-m "not integration"`.
 - `tests/test_weather.py` — uses local fixture data but requires the `tesseract` binary (`brew install tesseract` on Mac, `apt-get install tesseract-ocr` on Linux)
 
 ## Architecture notes
@@ -40,7 +41,6 @@ pytest
 
 ## Known issues / rough edges
 
-- `uvi_to_str` in `transform.py` has a bug: `elif return_str < 10` compares a string to an int (should be `uvi`).
 - `filter_trains_for_display` in `trains.py` is unused — filtering is done in `transform_trains`.
 - `pyproject.toml` is missing several runtime dependencies (`cairosvg`, `python-dotenv`, `zoneinfo` backport).
 - Weather icon SVGs must be present in `svg/` at the repo root (not tracked in git — source them from OpenWeatherMap).

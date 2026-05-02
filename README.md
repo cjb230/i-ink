@@ -90,10 +90,11 @@ On a non-Pi machine the mock display is used automatically — no hardware requi
 
 ```bash
 pip install -e ".[dev]"
-pytest
+pytest                        # runs all tests (requires network)
+pytest -m "not integration"   # offline-safe subset
 ```
 
-The train scraper test (`tests/test_trains.py`) makes a live HTTP request to the WKD website. The weather alert tests (`tests/test_weather.py`) use fixture data.
+`test_scraper_runs` in `tests/test_trains.py` is marked `@pytest.mark.integration` and makes a live HTTP request to the WKD website — skip it offline with `-m "not integration"`. All other tests use mocks or fixture data and run offline.
 
 ## Project layout
 
