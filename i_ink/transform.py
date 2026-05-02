@@ -42,6 +42,9 @@ def hour_report(minute_conditions: list) -> dict:
     now = int(datetime.now(timezone.utc).timestamp())
     future_minutes = [minute for minute in sorted_minutes if minute["dt"] > now]
 
+    if not future_minutes:
+        return "Weather data stale"
+
     total_rain_mm = int(sum(minute["precipitation"] for minute in future_minutes)/60)
     if future_minutes[0]["precipitation"] > 0:  # raining now
         rain_stop = next((minute["dt"] for minute in future_minutes if minute["precipitation"] == 0), None)

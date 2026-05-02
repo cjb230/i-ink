@@ -1,5 +1,5 @@
 import pytest
-from i_ink.transform import uvi_to_str
+from i_ink.transform import uvi_to_str, hour_report
 
 
 @pytest.mark.parametrize("uvi,expected", [
@@ -16,3 +16,10 @@ from i_ink.transform import uvi_to_str
 ])
 def test_uvi_to_str(uvi, expected):
     assert uvi_to_str(uvi) == expected
+
+
+def test_hour_report_all_minutes_in_past():
+    # All timestamps are in the past — future_minutes will be empty
+    past_minutes = [{"dt": 1, "precipitation": 0.0} for _ in range(60)]
+    result = hour_report(past_minutes)
+    assert isinstance(result, str)
