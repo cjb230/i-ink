@@ -46,7 +46,7 @@ Scrapes the [WKD timetable module](https://www.wkd.com.pl/?tmpl=module&module_id
 Python 3.13.3, plus system libraries for the e-ink driver on Pi:
 
 ```bash
-sudo apt-get install python3-dev libgpiod2 pigpio
+sudo apt-get install python3-dev libgpiod2 pigpio tesseract-ocr
 ```
 
 ### Install

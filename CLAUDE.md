@@ -18,7 +18,7 @@ pytest
 ```
 
 - `tests/test_trains.py` — makes a live HTTP request to wkd.com.pl; will fail offline
-- `tests/test_weather.py` — uses local fixture data, no network needed
+- `tests/test_weather.py` — uses local fixture data but requires the `tesseract` binary (`brew install tesseract` on Mac, `apt-get install tesseract-ocr` on Linux)
 
 ## Architecture notes
 
