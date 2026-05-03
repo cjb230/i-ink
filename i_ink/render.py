@@ -56,10 +56,10 @@ def render_train_info_image(all_trains, output_to_file=False, width=480, height=
 
     draw.text((82, 0), "Next WKD Trains To:", font=LARGE_FONT, fill="black")
 
-    title_y = 35
-    start_y = 31
+    title_y = 37
+    start_y = 33
     y = start_y
-    location_underline_y = 59
+    location_underline_y = 61
     for direction, trains in ((k, all_trains[k]) for k in ("warsaw", "podkowa_lesna")):
         z = 0
         y = start_y
@@ -102,7 +102,7 @@ def render_svg_to_pillow(svg_path: str, scale: float = 1.0) -> Image.Image:
     return Image.open(BytesIO(png_bytes)).convert("RGBA")
 
 
-def render_weather_hour(weather_data: dict, width: int=100, height: int=100, icon_size: int=2, output_path: str ="weather_hour.png", output_to_file: bool=False) -> Image:
+def render_weather_hour(weather_data: dict, width: int=100, height: int=105, icon_size: int=2, output_path: str ="weather_hour.png", output_to_file: bool=False) -> Image:
     image = Image.new("RGB", (width, height), "white")
     draw = ImageDraw.Draw(image)
     icon_index: str = weather_data["weather"][0]["icon"]
@@ -118,16 +118,15 @@ def render_weather_hour(weather_data: dict, width: int=100, height: int=100, ico
         hour_x = 35 if weather_data["hour_str"][0] == "2" else 33
     draw.text((hour_x, 0), weather_data["hour_str"], font=MEDIUM_FONT, fill="black")
     icon_image_1 = render_svg_to_pillow(icon_path_1, scale=0.08)
-    image.paste(icon_image_1, (28,26),icon_image_1)
-    # print(f"temp = {temp_str}")
-    draw.text((19, 63), str(temp_str), font=LARGE_FONT, fill="black")
+    image.paste(icon_image_1, (28, 29), icon_image_1)
+    draw.text((19, 69), str(temp_str), font=LARGE_FONT, fill="black")
 
     if output_to_file:
         image.save(output_path)
     return image    
 
 
-def render_weather_hours_image(weather_data, output_to_file=False, output_height=150, output_width=480, panel_height=100, panel_width=100, output_path="weather_hours.png") -> Image:
+def render_weather_hours_image(weather_data, output_to_file=False, output_height=150, output_width=480, panel_height=105, panel_width=100, output_path="weather_hours.png") -> Image:
     """
     Renders a white background image with weather in black text.
     Output is saved to the given path.
@@ -224,7 +223,7 @@ def render_weather_day(day_data: dict, width: int = 100, height: int = 150) -> I
     icon_path = os.path.join(ICON_IMAGE_BASE_PATH, icon_index + ".svg")
     icon_img = render_svg_to_pillow(icon_path, scale=0.08)
     icon_x = (width - icon_img.width) // 2
-    icon_y = 28
+    icon_y = 30
     image.paste(icon_img, (icon_x, icon_y), icon_img)
     icon_bottom = icon_y + icon_img.height
 
