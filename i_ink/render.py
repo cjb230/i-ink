@@ -60,7 +60,7 @@ def render_train_info_image(all_trains, output_to_file=False, width=480, height=
     start_y = 31
     y = start_y
     location_underline_y = 59
-    for direction, trains in all_trains.items():
+    for direction, trains in ((k, all_trains[k]) for k in ("warsaw", "podkowa_lesna")):
         z = 0
         y = start_y
         if NAME_MAP[direction] == "Warsaw":
