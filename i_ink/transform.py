@@ -83,7 +83,12 @@ def transform_weather(weather_data) -> dict:
         hour["hour_str"] = printable_hour(unix_time=hour["dt"])
         del hour["dt"]
 
-    results["daily"] = weather_data["result"]["hourly"][1:5]
+    daily_entries = weather_data["result"]["daily"][1:5]
+    for i, day in enumerate(daily_entries):
+        day["day_str"] = "Tomorrow" if i == 0 else datetime.fromtimestamp(day["dt"]).strftime("%A")
+        day["min_str"] = k_to_c_str(day["temp"]["min"])
+        day["max_str"] = k_to_c_str(day["temp"]["max"])
+    results["daily"] = daily_entries
 
     dt_utc = datetime.fromisoformat(weather_data["timestamp"])
     time_str = dt_utc.astimezone(zoneinfo.ZoneInfo("Europe/Warsaw")).strftime("%H:%M:%S")

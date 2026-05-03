@@ -211,8 +211,53 @@ def render_weather_now(weather_data: dict,
     return image
 
 
-def render_weather_days(weather_data, output_to_file=False, output_height=200, output_width=480, output_path="weather_now.png") -> Image:
+def render_weather_day(day_data: dict, width: int = 100, height: int = 150) -> Image.Image:
+    image = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(image)
+
+    label = day_data["day_str"]
+    bbox = MEDIUM_SMALL_FONT.getbbox(label)
+    label_w = bbox[2] - bbox[0]
+    draw.text(((width - label_w) // 2, 4), label, font=MEDIUM_SMALL_FONT, fill="black")
+
+    icon_index = day_data["weather"][0]["icon"]
+    icon_path = os.path.join(ICON_IMAGE_BASE_PATH, icon_index + ".svg")
+    icon_img = render_svg_to_pillow(icon_path, scale=0.08)
+    icon_x = (width - icon_img.width) // 2
+    icon_y = 28
+    image.paste(icon_img, (icon_x, icon_y), icon_img)
+    icon_bottom = icon_y + icon_img.height
+
+    max_str = day_data["max_str"]
+    min_str = day_data["min_str"]
+    bbox = MEDIUM_FONT.getbbox(max_str)
+    max_w = bbox[2] - bbox[0]
+    max_y = icon_bottom + 8
+    draw.text(((width - max_w) // 2, max_y), max_str, font=MEDIUM_FONT, fill="black")
+    bbox = MEDIUM_SMALL_FONT.getbbox(min_str)
+    min_w = bbox[2] - bbox[0]
+    draw.text(((width - min_w) // 2, max_y + 26), min_str, font=MEDIUM_SMALL_FONT, fill="black")
+
+    return image
+
+
+def render_weather_days(weather_data, output_to_file=False, output_height=200, output_width=480, output_path="weather_days.png") -> Image:
     image = Image.new("RGB", (output_width, output_height), "white")
+
+    panel_width = 100
+    panel_height = 150
+    total_days = len(weather_data["daily"])
+    total_panel_width = total_days * panel_width
+    spacing = (output_width - total_panel_width) // (total_days + 1)
+    y = (output_height - panel_height) // 2
+
+    x = spacing
+    for day in weather_data["daily"]:
+        image.paste(render_weather_day(day), (x, y))
+        x += panel_width + spacing
+
+    if output_to_file:
+        image.save(output_path)
     return image
 
 
