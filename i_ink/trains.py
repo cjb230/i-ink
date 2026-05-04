@@ -24,7 +24,7 @@ def _parse_train_element(element) -> list:
             except ValueError:
                 time_str = time_str.replace("24", "00")
                 time_obj = datetime.strptime(time_str, "%H:%M").time()
-            key = (time_obj, train_no.lstrip("0"))
+            key = time_obj
             if key not in seen:
                 seen.add(key)
                 results.append((time_obj, train_no))

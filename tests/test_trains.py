@@ -15,6 +15,19 @@ def test_parse_train_element_deduplicates_same_train_different_leading_zeros():
     assert result[0][0].strftime("%H:%M") == "00:12"
 
 
+def test_parse_train_element_deduplicates_same_time_different_train_numbers():
+    # Malichy has one platform per direction — two entries at the same time are always the same train
+    # e.g. "601" and "06101" at 01:13 should produce one entry
+    element = MagicMock()
+    element.text_content.return_value = (
+        "601.a{fill:#004982;}01:13.a{fill:#004982;} "
+        "06101.a{fill:#004982;}01:13.a{fill:#004982;}"
+    )
+    result = _parse_train_element(element)
+    assert len(result) == 1
+    assert result[0][0].strftime("%H:%M") == "01:13"
+
+
 @pytest.mark.integration
 def test_scraper_runs():
     trains = get_next_wkd_trains()
