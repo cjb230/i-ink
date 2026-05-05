@@ -82,7 +82,42 @@ On a Pi, use `start.sh` which pulls the latest code, activates the venv, sets th
 ./start.sh
 ```
 
-To run at boot, add `start.sh` to cron or a systemd service.
+### Running at boot (systemd)
+
+Create `/etc/systemd/system/i-ink.service`:
+
+```ini
+[Unit]
+Description=i-ink e-ink dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=cjb
+WorkingDirectory=/home/cjb/repos/i-ink
+ExecStart=/home/cjb/repos/i-ink/start.sh
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then enable and start it:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable i-ink
+sudo systemctl start i-ink
+```
+
+Check status and logs:
+
+```bash
+systemctl status i-ink           # is it running?
+tail -f /home/cjb/i-ink.log      # live Python output
+journalctl -u i-ink -n 50        # systemd log (crashes, restarts)
+```
 
 ## Development
 
