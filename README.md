@@ -10,11 +10,12 @@ The screen is divided into five vertical sections:
 |---|---|
 | Current weather (top) | Weather icon, temperature, feels-like, UV index, minute-by-minute rain forecast, active alerts |
 | Hourly forecast | Icon + temperature for the next 4 hours |
-| Daily forecast | *(placeholder — not yet implemented)* |
+| Daily forecast | Icon + min/max temperature for the next 4 days |
 | Train times | Next departures from Malichy toward Warsaw (left) and Podkowa Leśna (right) |
 | Footer | Last-updated timestamps for weather and trains |
 
 The screen only refreshes when the image has actually changed, to preserve e-ink panel lifetime.
+Weather and train data are fetched independently. If one source fails, the display keeps using the last good data for that source while still updating the other source. After more than `I_INK_FAILURE_ALERT_THRESHOLD` consecutive failures, default `3`, that source's panel shows an error with instructions to check `/home/cjb/i-ink.log` on `192.168.1.66`.
 
 ## Hardware
 
@@ -61,13 +62,14 @@ pip install -e .
 
 ### Environment
 
-Copy `example.env` to `.env` and fill in your values (used by the weather proxy, not directly by this app):
+Copy `example.env` to `.env` and fill in your weather-proxy values. `LATITUDE`, `LONGITUDE`, `LOCAL_TIMEZONE`, and `OWM_API_KEY` are consumed by the weather proxy, not directly by this app. `I_INK_FAILURE_ALERT_THRESHOLD` is read by this app:
 
 ```
 LATITUDE=52.0
 LONGITUDE=20.9
 LOCAL_TIMEZONE="Europe/Warsaw"
 OWM_API_KEY=your_key_here
+I_INK_FAILURE_ALERT_THRESHOLD=3
 ```
 
 ### Run
@@ -129,13 +131,13 @@ pytest                        # runs all tests (requires network)
 pytest -m "not integration"   # offline-safe subset
 ```
 
-`test_scraper_runs` in `tests/test_trains.py` is marked `@pytest.mark.integration` and makes a live HTTP request to the WKD website — skip it offline with `-m "not integration"`. All other tests use mocks or fixture data and run offline.
+`test_scraper_runs` in `tests/test_trains.py` is marked `@pytest.mark.integration` and makes a live HTTP request to the WKD website — skip it offline with `-m "not integration"`. All other tests use mocks or fixture data and run offline. `tests/test_weather.py` also needs the `tesseract` binary for OCR assertions.
 
 ## Project layout
 
 ```
 i_ink/
-  main.py          # Main loop — fetch, transform, render, display
+  main.py          # Main loop — per-source fetch state, transform, render, display
   trains.py        # WKD website scraper
   weather.py       # Weather proxy client
   transform.py     # Raw API data → display-ready dicts

@@ -45,11 +45,37 @@ def split_at_spaces(text, max_len=20):
     return result
 
 
+def split_lines_at_spaces(text, max_len=34):
+    result = []
+    for line in text.splitlines():
+        result.extend(split_at_spaces(line, max_len=max_len))
+    return result
+
+
+def render_source_message(title: str, message: str, width: int, height: int) -> Image.Image:
+    image = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(image)
+    draw.text((20, 12), title, font=MEDIUM_FONT, fill="black")
+
+    y = 45
+    for line in split_lines_at_spaces(message, max_len=44):
+        if y > height - 18:
+            break
+        draw.text((20, y), line, font=TINY_FONT, fill="black")
+        y += 16
+    return image
+
+
 def render_train_info_image(all_trains, output_to_file=False, width=480, height=150, output_path="train_times.png"):
     """
     Renders a white background image with train times in black text.
     Output is saved to the given path.
     """
+    if "error" in all_trains:
+        return render_source_message("WKD trains unavailable", all_trains["error"], width, height)
+    if "missing" in all_trains:
+        return render_source_message("Waiting for WKD trains", "", width, height)
+
     image = Image.new("RGB", (width, height), "white")
     draw = ImageDraw.Draw(image)
      #image.paste(wkd_overlay, (50, 50))
@@ -278,10 +304,11 @@ def render_footer(weather_updated_time: str, trains_updated_time: str, motd: str
 
 
 def render_weather_error(message: str, width: int = 480, height: int = 600) -> Image.Image:
-    image = Image.new("RGB", (width, height), "white")
-    draw = ImageDraw.Draw(image)
-    draw.text((20, height // 2 - 15), f"Weather unavailable: {message}", font=MEDIUM_FONT, fill="black")
-    return image
+    return render_source_message("Weather unavailable", message, width, height)
+
+
+def render_weather_missing(width: int = 480, height: int = 600) -> Image.Image:
+    return render_source_message("Waiting for weather", "", width, height)
 
 
 def render_all(transformed_trains, transformed_weather, train_timestamp, output_to_file=False, output_path="final.png") -> Image:
@@ -290,6 +317,16 @@ def render_all(transformed_trains, transformed_weather, train_timestamp, output_
 
     if "error" in transformed_weather:
         weather_panel = render_weather_error(transformed_weather["error"])
+        new_img = Image.new("RGB", (480, 800))
+        new_img.paste(weather_panel, (0, 0))
+        new_img.paste(train_part, (0, 600))
+        new_img.paste(footer, (0, 750))
+        if output_to_file:
+            new_img.save(output_path)
+        return new_img
+
+    if "missing" in transformed_weather:
+        weather_panel = render_weather_missing()
         new_img = Image.new("RGB", (480, 800))
         new_img.paste(weather_panel, (0, 0))
         new_img.paste(train_part, (0, 600))
